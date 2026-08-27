@@ -138,6 +138,8 @@ const popoverPanel: CSSProperties = {
   padding: 8,
   minWidth: 190,
   maxWidth: "calc(100vw - 36px)",
+  maxHeight: "calc(100dvh - 100px)",
+  overflowY: "auto",
   borderRadius: 18,
   background: "linear-gradient(var(--tile),var(--tile)),var(--bg)",
   border: "1px solid var(--line)",
@@ -154,24 +156,15 @@ const popoverMotion = {
   transition: { type: "spring", stiffness: 420, damping: 32 } as const,
 };
 
-// The settings panel opens as its own popover to the left, rather than
-// growing inline — on short viewports an inline accordion can end up
-// taller than the screen with no way to scroll it into view.
-const settingsPopoverPanel: CSSProperties = {
-  ...popoverPanel,
-  right: "calc(100% + 10px)",
-  bottom: 0,
-  width: "min(230px,calc(100vw - 60px))",
-  maxHeight: "calc(100dvh - 100px)",
-  overflowY: "auto",
-  transformOrigin: "bottom right",
-};
-
-const settingsPopoverMotion = {
-  initial: { opacity: 0, scale: 0.94, x: 8 },
-  animate: { opacity: 1, scale: 1, x: 0 },
-  exit: { opacity: 0, scale: 0.94, x: 8 },
-  transition: { type: "spring", stiffness: 420, damping: 32 } as const,
+// The settings fields swap in for the nav links inside the SAME popover
+// (rather than opening a second popover beside it) — on a narrow, short
+// screen there isn't room for two popovers side by side, and the shared
+// panel already has a max-height + scroll for short viewports.
+const panelSwapMotion = {
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
+  transition: { duration: 0.16 },
 };
 
 function pillStyle(active: boolean): CSSProperties {
@@ -202,13 +195,10 @@ function SettingsToggleRow({
         border: "none",
         cursor: "pointer",
         background: "transparent",
-        ...(panelOpen
-          ? { color: "var(--onAccent)", background: "var(--accent)" }
-          : undefined),
       }}
     >
       <span className="material-symbol" style={{ fontSize: 18, flex: "0 0 auto" }}>
-        tune
+        {panelOpen ? "arrow_back" : "tune"}
       </span>
       Time &amp; weather
     </button>
@@ -317,11 +307,15 @@ function SettingsFields({
 function DesktopNav({ route, settings }: { route: string; settings: SettingsProps }) {
   const [open, setOpen] = useState(false);
   const [prevRoute, setPrevRoute] = useState(route);
-  const ref = useClickOutside(() => setOpen(false));
+  const ref = useClickOutside(() => {
+    setOpen(false);
+    settings.setPanelOpen(() => false);
+  });
 
   if (route !== prevRoute) {
     setPrevRoute(route);
     setOpen(false);
+    settings.setPanelOpen(() => false);
   }
 
   return (
@@ -388,23 +382,30 @@ function DesktopNav({ route, settings }: { route: string; settings: SettingsProp
         <AnimatePresence>
           {open && (
             <motion.div style={popoverPanel} {...popoverMotion}>
-              {moreRoutes.map((item) => (
-                <NavLink
-                  key={item.href}
-                  item={item}
-                  active={isActive(route, item.href)}
-                  stacked
-                />
-              ))}
-              <HDivider />
-              <SettingsToggleRow
-                panelOpen={settings.panelOpen}
-                setPanelOpen={settings.setPanelOpen}
-              />
-              <AnimatePresence>
-                {settings.panelOpen && (
-                  <motion.div style={settingsPopoverPanel} {...settingsPopoverMotion}>
+              <AnimatePresence mode="wait" initial={false}>
+                {settings.panelOpen ? (
+                  <motion.div key="settings" {...panelSwapMotion}>
+                    <SettingsToggleRow
+                      panelOpen={settings.panelOpen}
+                      setPanelOpen={settings.setPanelOpen}
+                    />
                     <SettingsFields {...settings} />
+                  </motion.div>
+                ) : (
+                  <motion.div key="links" {...panelSwapMotion}>
+                    {moreRoutes.map((item) => (
+                      <NavLink
+                        key={item.href}
+                        item={item}
+                        active={isActive(route, item.href)}
+                        stacked
+                      />
+                    ))}
+                    <HDivider />
+                    <SettingsToggleRow
+                      panelOpen={settings.panelOpen}
+                      setPanelOpen={settings.setPanelOpen}
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -419,11 +420,15 @@ function DesktopNav({ route, settings }: { route: string; settings: SettingsProp
 function MobileNav({ route, settings }: { route: string; settings: SettingsProps }) {
   const [open, setOpen] = useState(false);
   const [prevRoute, setPrevRoute] = useState(route);
-  const ref = useClickOutside(() => setOpen(false));
+  const ref = useClickOutside(() => {
+    setOpen(false);
+    settings.setPanelOpen(() => false);
+  });
 
   if (route !== prevRoute) {
     setPrevRoute(route);
     setOpen(false);
+    settings.setPanelOpen(() => false);
   }
 
   return (
@@ -443,23 +448,30 @@ function MobileNav({ route, settings }: { route: string; settings: SettingsProps
             style={{ ...popoverPanel, minWidth: 200 }}
             {...popoverMotion}
           >
-            {[...primaryRoutes, ...moreRoutes].map((item) => (
-              <NavLink
-                key={item.href}
-                item={item}
-                active={isActive(route, item.href)}
-                stacked
-              />
-            ))}
-            <HDivider />
-            <SettingsToggleRow
-              panelOpen={settings.panelOpen}
-              setPanelOpen={settings.setPanelOpen}
-            />
-            <AnimatePresence>
-              {settings.panelOpen && (
-                <motion.div style={settingsPopoverPanel} {...settingsPopoverMotion}>
+            <AnimatePresence mode="wait" initial={false}>
+              {settings.panelOpen ? (
+                <motion.div key="settings" {...panelSwapMotion}>
+                  <SettingsToggleRow
+                    panelOpen={settings.panelOpen}
+                    setPanelOpen={settings.setPanelOpen}
+                  />
                   <SettingsFields {...settings} />
+                </motion.div>
+              ) : (
+                <motion.div key="links" {...panelSwapMotion}>
+                  {[...primaryRoutes, ...moreRoutes].map((item) => (
+                    <NavLink
+                      key={item.href}
+                      item={item}
+                      active={isActive(route, item.href)}
+                      stacked
+                    />
+                  ))}
+                  <HDivider />
+                  <SettingsToggleRow
+                    panelOpen={settings.panelOpen}
+                    setPanelOpen={settings.setPanelOpen}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
