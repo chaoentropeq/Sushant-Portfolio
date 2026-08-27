@@ -74,6 +74,26 @@ export function IntroSequence({ onDone }: { onDone: () => void }) {
           </motion.div>
         ))}
       </div>
+
+      <motion.p
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.15, duration: 0.5, ease: easeOut }}
+        style={{
+          position: "absolute",
+          left: 0,
+          right: 0,
+          bottom: "9%",
+          margin: 0,
+          textAlign: "center",
+          fontFamily: "'JetBrains Mono',monospace",
+          fontSize: 12,
+          letterSpacing: ".04em",
+          color: "var(--fg2)",
+        }}
+      >
+        Made with ❤️ by Sushant.
+      </motion.p>
     </motion.div>
   );
 }
