@@ -307,7 +307,13 @@ function SettingsFields({
 function DesktopNav({ route, settings }: { route: string; settings: SettingsProps }) {
   const [open, setOpen] = useState(false);
   const [prevRoute, setPrevRoute] = useState(route);
+  // DesktopNav and MobileNav are both mounted at once (CSS just hides
+  // whichever doesn't match the breakpoint), so without this guard a click
+  // inside DesktopNav's own popover reads as "outside" to MobileNav's
+  // listener (and vice versa) and force-closes the shared settings panel —
+  // only act when THIS nav's popover is actually the one open.
   const ref = useClickOutside(() => {
+    if (!open) return;
     setOpen(false);
     settings.setPanelOpen(() => false);
   });
@@ -421,6 +427,7 @@ function MobileNav({ route, settings }: { route: string; settings: SettingsProps
   const [open, setOpen] = useState(false);
   const [prevRoute, setPrevRoute] = useState(route);
   const ref = useClickOutside(() => {
+    if (!open) return;
     setOpen(false);
     settings.setPanelOpen(() => false);
   });
