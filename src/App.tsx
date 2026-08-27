@@ -5,7 +5,6 @@ import { IntroSequence } from "./components/IntroSequence";
 import { BackgroundBlobs } from "./components/BackgroundBlobs";
 import { SkyCanvas } from "./components/SkyCanvas";
 import { Dock } from "./components/Dock";
-import { SettingsPanel } from "./components/SettingsPanel";
 import { Home } from "./pages/Home";
 import { Journey } from "./pages/Journey";
 import { Projects } from "./pages/Projects";
@@ -130,9 +129,8 @@ function App() {
         )}
       </main>
 
-      <Dock route={portfolio.route} />
-
-      <SettingsPanel
+      <Dock
+        route={portfolio.route}
         phase={portfolio.phase}
         weather={portfolio.weather}
         temp={portfolio.temp}

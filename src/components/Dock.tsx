@@ -1,6 +1,13 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ROUTES } from "../theme";
+import {
+  PHASES,
+  PHASE_OPTIONS,
+  ROUTES,
+  WEATHERS,
+  type Phase,
+  type Weather,
+} from "../theme";
 
 const PRIMARY_HREFS = ["#/", "#/journey", "#/projects", "#/skills"];
 
@@ -14,6 +21,18 @@ function isActive(route: string, href: string) {
     route === href ||
     (href === "#/" && !ROUTES.some((r) => r.href === route))
   );
+}
+
+interface SettingsProps {
+  phase: Phase;
+  weather: Weather;
+  temp: number | null;
+  phaseOverride: Phase | null;
+  weatherOverride: Weather | null;
+  panelOpen: boolean;
+  setPanelOpen: (fn: (v: boolean) => boolean) => void;
+  setPhaseOverride: (v: Phase | null) => void;
+  setWeatherOverride: (v: Weather | null) => void;
 }
 
 const navLinkBase: CSSProperties = {
@@ -83,6 +102,20 @@ function Divider() {
   );
 }
 
+function HDivider() {
+  return (
+    <span
+      style={{
+        display: "block",
+        height: 1,
+        background: "var(--line)",
+        margin: "6px 4px",
+        flex: "0 0 auto",
+      }}
+    />
+  );
+}
+
 function useClickOutside(onOutside: () => void) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -121,7 +154,153 @@ const popoverMotion = {
   transition: { type: "spring", stiffness: 420, damping: 32 } as const,
 };
 
-function DesktopNav({ route }: { route: string }) {
+function pillStyle(active: boolean): CSSProperties {
+  return {
+    padding: "7px 11px",
+    borderRadius: 10,
+    cursor: "pointer",
+    fontFamily: "'JetBrains Mono',monospace",
+    fontSize: 11,
+    border: `1px solid ${active ? "transparent" : "var(--line)"}`,
+    background: active ? "var(--accent)" : "transparent",
+    color: active ? "var(--onAccent)" : "var(--fg2)",
+    transition: "background .25s ease,color .25s ease,border-color .25s ease",
+  };
+}
+
+function SettingsToggleRow({
+  panelOpen,
+  setPanelOpen,
+}: Pick<SettingsProps, "panelOpen" | "setPanelOpen">) {
+  return (
+    <button
+      onClick={() => setPanelOpen((v) => !v)}
+      className="nav-link"
+      style={{
+        ...navLinkBase,
+        width: "100%",
+        border: "none",
+        cursor: "pointer",
+        background: "transparent",
+        ...(panelOpen
+          ? { color: "var(--onAccent)", background: "var(--accent)" }
+          : undefined),
+      }}
+    >
+      <span className="material-symbol" style={{ fontSize: 18, flex: "0 0 auto" }}>
+        tune
+      </span>
+      Time &amp; weather
+    </button>
+  );
+}
+
+function SettingsFields({
+  phase,
+  weather,
+  temp,
+  phaseOverride,
+  weatherOverride,
+  setPhaseOverride,
+  setWeatherOverride,
+}: Omit<SettingsProps, "panelOpen" | "setPanelOpen">) {
+  const statusLine =
+    PHASES[phase].label + " · " + weather + (temp != null ? ` · ${temp}°C` : "");
+
+  return (
+    <motion.div
+      initial={{ height: 0, opacity: 0 }}
+      animate={{ height: "auto", opacity: 1 }}
+      exit={{ height: 0, opacity: 0 }}
+      transition={{ duration: 0.25, ease: "easeInOut" }}
+      style={{ overflow: "hidden" }}
+    >
+      <div style={{ padding: "8px 8px 4px" }}>
+        <p
+          style={{
+            margin: "0 0 10px",
+            fontFamily: "'JetBrains Mono',monospace",
+            fontSize: 10,
+            letterSpacing: ".1em",
+            color: "var(--fg2)",
+          }}
+        >
+          {statusLine}
+        </p>
+
+        <p
+          style={{
+            margin: "0 0 8px",
+            fontFamily: "'JetBrains Mono',monospace",
+            fontSize: 10,
+            letterSpacing: ".16em",
+            textTransform: "uppercase",
+            color: "var(--fg2)",
+          }}
+        >
+          Time of day
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
+          <motion.button
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.95 }}
+            style={pillStyle(!phaseOverride)}
+            onClick={() => setPhaseOverride(null)}
+          >
+            auto
+          </motion.button>
+          {PHASE_OPTIONS.map((p) => (
+            <motion.button
+              key={p}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.95 }}
+              style={pillStyle(phaseOverride === p)}
+              onClick={() => setPhaseOverride(p)}
+            >
+              {p}
+            </motion.button>
+          ))}
+        </div>
+
+        <p
+          style={{
+            margin: "0 0 8px",
+            fontFamily: "'JetBrains Mono',monospace",
+            fontSize: 10,
+            letterSpacing: ".16em",
+            textTransform: "uppercase",
+            color: "var(--fg2)",
+          }}
+        >
+          Weather
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+          <motion.button
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.95 }}
+            style={pillStyle(!weatherOverride)}
+            onClick={() => setWeatherOverride(null)}
+          >
+            auto
+          </motion.button>
+          {WEATHERS.map((w) => (
+            <motion.button
+              key={w}
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.95 }}
+              style={pillStyle(weatherOverride === w)}
+              onClick={() => setWeatherOverride(w)}
+            >
+              {w}
+            </motion.button>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function DesktopNav({ route, settings }: { route: string; settings: SettingsProps }) {
   const [open, setOpen] = useState(false);
   const [prevRoute, setPrevRoute] = useState(route);
   const ref = useClickOutside(() => setOpen(false));
@@ -203,6 +382,14 @@ function DesktopNav({ route }: { route: string }) {
                   stacked
                 />
               ))}
+              <HDivider />
+              <SettingsToggleRow
+                panelOpen={settings.panelOpen}
+                setPanelOpen={settings.setPanelOpen}
+              />
+              <AnimatePresence>
+                {settings.panelOpen && <SettingsFields {...settings} />}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
@@ -211,7 +398,7 @@ function DesktopNav({ route }: { route: string }) {
   );
 }
 
-function MobileNav({ route }: { route: string }) {
+function MobileNav({ route, settings }: { route: string; settings: SettingsProps }) {
   const [open, setOpen] = useState(false);
   const [prevRoute, setPrevRoute] = useState(route);
   const ref = useClickOutside(() => setOpen(false));
@@ -246,6 +433,14 @@ function MobileNav({ route }: { route: string }) {
                 stacked
               />
             ))}
+            <HDivider />
+            <SettingsToggleRow
+              panelOpen={settings.panelOpen}
+              setPanelOpen={settings.setPanelOpen}
+            />
+            <AnimatePresence>
+              {settings.panelOpen && <SettingsFields {...settings} />}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>
@@ -276,11 +471,14 @@ function MobileNav({ route }: { route: string }) {
   );
 }
 
-export function Dock({ route }: { route: string }) {
+export function Dock({
+  route,
+  ...settings
+}: { route: string } & SettingsProps) {
   return (
     <>
-      <DesktopNav route={route} />
-      <MobileNav route={route} />
+      <DesktopNav route={route} settings={settings} />
+      <MobileNav route={route} settings={settings} />
     </>
   );
 }
