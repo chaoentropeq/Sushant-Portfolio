@@ -154,6 +154,26 @@ const popoverMotion = {
   transition: { type: "spring", stiffness: 420, damping: 32 } as const,
 };
 
+// The settings panel opens as its own popover to the left, rather than
+// growing inline — on short viewports an inline accordion can end up
+// taller than the screen with no way to scroll it into view.
+const settingsPopoverPanel: CSSProperties = {
+  ...popoverPanel,
+  right: "calc(100% + 10px)",
+  bottom: 0,
+  width: "min(230px,calc(100vw - 60px))",
+  maxHeight: "calc(100dvh - 100px)",
+  overflowY: "auto",
+  transformOrigin: "bottom right",
+};
+
+const settingsPopoverMotion = {
+  initial: { opacity: 0, scale: 0.94, x: 8 },
+  animate: { opacity: 1, scale: 1, x: 0 },
+  exit: { opacity: 0, scale: 0.94, x: 8 },
+  transition: { type: "spring", stiffness: 420, damping: 32 } as const,
+};
+
 function pillStyle(active: boolean): CSSProperties {
   return {
     padding: "7px 11px",
@@ -208,13 +228,7 @@ function SettingsFields({
     PHASES[phase].label + " · " + weather + (temp != null ? ` · ${temp}°C` : "");
 
   return (
-    <motion.div
-      initial={{ height: 0, opacity: 0 }}
-      animate={{ height: "auto", opacity: 1 }}
-      exit={{ height: 0, opacity: 0 }}
-      transition={{ duration: 0.25, ease: "easeInOut" }}
-      style={{ overflow: "hidden" }}
-    >
+    <>
       <div style={{ padding: "8px 8px 4px" }}>
         <p
           style={{
@@ -296,7 +310,7 @@ function SettingsFields({
           ))}
         </div>
       </div>
-    </motion.div>
+    </>
   );
 }
 
@@ -388,7 +402,11 @@ function DesktopNav({ route, settings }: { route: string; settings: SettingsProp
                 setPanelOpen={settings.setPanelOpen}
               />
               <AnimatePresence>
-                {settings.panelOpen && <SettingsFields {...settings} />}
+                {settings.panelOpen && (
+                  <motion.div style={settingsPopoverPanel} {...settingsPopoverMotion}>
+                    <SettingsFields {...settings} />
+                  </motion.div>
+                )}
               </AnimatePresence>
             </motion.div>
           )}
@@ -439,7 +457,11 @@ function MobileNav({ route, settings }: { route: string; settings: SettingsProps
               setPanelOpen={settings.setPanelOpen}
             />
             <AnimatePresence>
-              {settings.panelOpen && <SettingsFields {...settings} />}
+              {settings.panelOpen && (
+                <motion.div style={settingsPopoverPanel} {...settingsPopoverMotion}>
+                  <SettingsFields {...settings} />
+                </motion.div>
+              )}
             </AnimatePresence>
           </motion.div>
         )}
