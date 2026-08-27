@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #eef1f6;
+  --fg: #12161d;
+  --fg2: rgba(18, 22, 29, 0.58);
+  --tile: rgba(255, 255, 255, 0.5);
+  --line: rgba(18, 22, 29, 0.1);
+  --sheen: rgba(255, 255, 255, 0.75);
+  --accent: #5b7bff;
+  --accent2: #8e7bff;
+  --onAccent: #ffffff;
+  --g1: #a8c0ff;
+  --g2: #d9c7ff;
+  --g3: #bfe6e0;
+  --skyTop: #bcd4ff;
+  --skyBot: #f3e3c8;
+  --fig: rgba(18, 22, 29, 0.72);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  transition: background 1.2s ease;
+  font-family: "Space Grotesk", Helvetica, sans-serif;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent2);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--onAccent);
+}
+
+.font-mono {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.material-symbol {
+  font-family: "Material Symbols Rounded";
+  font-variation-settings: "FILL" 0, "wght" 400;
+  line-height: 1;
+}
+
+.nav-link {
+  color: var(--fg2);
+}
+
+.nav-link:hover {
+  background: var(--sheen);
+  color: var(--fg);
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4vw, -3vh, 0) scale(1.12);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes drift2 {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+  50% {
+    transform: translate3d(-5vw, 4vh, 0) scale(0.95);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tileIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 0.25;
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-4px) scaleY(1.06);
+  }
+  100% {
+    opacity: 0.25;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (max-width: 940px) {
+  [data-dock] {
+    overflow-x: auto;
+    max-width: calc(100vw - 24px);
+  }
+}
+
+/* Home's bento grid fits inside the viewport with no page scroll on large
+   desktop screens only — the 84px/140px match <main>'s own top/bottom
+   padding exactly. Phone and tablet (below xl) scroll normally; Home.tsx
+   handles their layout itself via responsive Tailwind classes per tile.
+   The min-height guard matters just as much as the min-width one: fluid
+   type has a legibility floor (see the h1's clamp() in Home.tsx), so past
+   some point a short-but-wide window simply can't fit six fixed grid rows
+   no matter how far the text shrinks. Below that height, fall back to the
+   same "scroll normally" behavior phone/tablet already get, rather than
+   forcing illegible text or letting content spill out of its tile. */
+@media (min-width: 1280px) and (min-height: 820px) {
+  body:has([data-bento]) {
+    overflow: hidden;
+  }
+  [data-bento] {
+    height: calc(100dvh - 84px - 140px) !important;
+    grid-template-rows: repeat(6, minmax(0, 1fr)) !important;
+  }
+}
