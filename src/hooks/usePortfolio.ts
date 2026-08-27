@@ -14,15 +14,15 @@ interface StoredOverride {
 }
 
 function phaseFromHour(hour: number): Phase {
-  if (hour >= 5 && hour < 11) return "morning";
-  if (hour >= 11 && hour < 17) return "afternoon";
+  if (hour >= 5 && hour < 12) return "morning";
+  if (hour >= 12 && hour < 17) return "afternoon";
   if (hour >= 17 && hour < 21) return "evening";
   return "night";
 }
 
 export function usePortfolio() {
   const [route, setRoute] = useState(
-    () => (typeof location !== "undefined" && location.hash) || "#/",
+    () => (typeof location !== "undefined" && location.hash) || "#/"
   );
   const [hour, setHour] = useState(() => new Date().getHours());
   const [minute, setMinute] = useState(() => new Date().getMinutes());
@@ -31,9 +31,7 @@ export function usePortfolio() {
   const [place, setPlace] = useState<string | null>(null);
   const [live, setLive] = useState(false);
   const [phaseOverride, setPhaseOverride] = useState<Phase | null>(null);
-  const [weatherOverride, setWeatherOverride] = useState<Weather | null>(
-    null,
-  );
+  const [weatherOverride, setWeatherOverride] = useState<Weather | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
 
   useEffect(() => {
@@ -58,7 +56,7 @@ export function usePortfolio() {
   useEffect(() => {
     try {
       const saved = JSON.parse(
-        localStorage.getItem(OVERRIDE_KEY) || "null",
+        localStorage.getItem(OVERRIDE_KEY) || "null"
       ) as StoredOverride | null;
       if (saved) {
         setPhaseOverride(saved.phaseOverride ?? null);
@@ -70,9 +68,13 @@ export function usePortfolio() {
   }, []);
 
   useEffect(() => {
-    const fetchAt = (lat: number | string, lon: number | string, at: string) => {
+    const fetchAt = (
+      lat: number | string,
+      lon: number | string,
+      at: string
+    ) => {
       fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`,
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`
       )
         .then((r) => r.json())
         .then((j) => {
@@ -92,10 +94,10 @@ export function usePortfolio() {
           fetchAt(
             p.coords.latitude.toFixed(3),
             p.coords.longitude.toFixed(3),
-            "your area",
+            "your area"
           ),
         fallback,
-        { timeout: 6000 },
+        { timeout: 6000 }
       );
     } else fallback();
   }, []);
@@ -104,14 +106,14 @@ export function usePortfolio() {
 
   const phase = useMemo(
     () => phaseOverride || phaseFromHour(hour),
-    [phaseOverride, hour],
+    [phaseOverride, hour]
   );
 
   const resolvedWeather = weatherOverride || weather;
 
   const theme = useMemo(
     () => computeTheme(phase, resolvedWeather),
-    [phase, resolvedWeather],
+    [phase, resolvedWeather]
   );
 
   useEffect(() => {
@@ -127,7 +129,7 @@ export function usePortfolio() {
     try {
       localStorage.setItem(
         OVERRIDE_KEY,
-        JSON.stringify({ phaseOverride: val, weatherOverride }),
+        JSON.stringify({ phaseOverride: val, weatherOverride })
       );
     } catch {
       /* ignore quota / privacy-mode errors */
@@ -139,7 +141,7 @@ export function usePortfolio() {
     try {
       localStorage.setItem(
         OVERRIDE_KEY,
-        JSON.stringify({ phaseOverride, weatherOverride: val }),
+        JSON.stringify({ phaseOverride, weatherOverride: val })
       );
     } catch {
       /* ignore quota / privacy-mode errors */

@@ -68,7 +68,7 @@ function makeSoftDiscSprite(size: number, inner: string, outer: string) {
     0,
     size / 2,
     size / 2,
-    size / 2,
+    size / 2
   );
   g.addColorStop(0, inner);
   g.addColorStop(0.45, inner);
@@ -108,7 +108,7 @@ export function SkyCanvas({
     const flakeSprite = makeSoftDiscSprite(
       48,
       "rgba(255,255,255,.95)",
-      "rgba(255,255,255,0)",
+      "rgba(255,255,255,0)"
     );
 
     let W = 0;
@@ -128,7 +128,7 @@ export function SkyCanvas({
     size();
 
     const reduceMotionQuery = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
+      "(prefers-reduced-motion: reduce)"
     );
     let reduceMotion = reduceMotionQuery.matches;
     const onReduceMotionChange = (e: MediaQueryListEvent) => {
@@ -142,33 +142,41 @@ export function SkyCanvas({
     let dioramaFigure: FrameRect | null = null;
     const refreshTiles = () => {
       const els = Array.from(
-        document.querySelectorAll<HTMLElement>(TILE_SELECTOR),
+        document.querySelectorAll<HTMLElement>(TILE_SELECTOR)
       );
       tileRects = els.map((el) => {
         const r = el.getBoundingClientRect();
         return { left: r.left, right: r.right, top: r.top };
       });
       dioramaTileIndex = els.findIndex((el) =>
-        el.hasAttribute("data-diorama-tile"),
+        el.hasAttribute("data-diorama-tile")
       );
 
-      const frameEl = document.querySelector<HTMLElement>(
-        "[data-diorama-box]",
-      );
+      const frameEl = document.querySelector<HTMLElement>("[data-diorama-box]");
       dioramaFrame = frameEl
         ? (() => {
             const r = frameEl.getBoundingClientRect();
-            return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+            return {
+              left: r.left,
+              right: r.right,
+              top: r.top,
+              bottom: r.bottom,
+            };
           })()
         : null;
 
       const figureEl = document.querySelector<HTMLImageElement>(
-        "[data-diorama-figure]",
+        "[data-diorama-figure]"
       );
       dioramaFigure = figureEl
         ? (() => {
             const r = figureEl.getBoundingClientRect();
-            return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+            return {
+              left: r.left,
+              right: r.right,
+              top: r.top,
+              bottom: r.bottom,
+            };
           })()
         : null;
     };
@@ -209,7 +217,8 @@ export function SkyCanvas({
       if (frac >= 0.5 - headHalf && frac <= 0.5 + headHalf) {
         const t = (frac - (0.5 - headHalf)) / HEAD_WIDTH_FRAC;
         const domeFrac =
-          SHOULDER_Y_FRAC - (SHOULDER_Y_FRAC - HEAD_TOP_FRAC) * Math.sin(t * Math.PI);
+          SHOULDER_Y_FRAC -
+          (SHOULDER_Y_FRAC - HEAD_TOP_FRAC) * Math.sin(t * Math.PI);
         return dioramaFigure.top + domeFrac * figH;
       }
       return dioramaFigure.top + SHOULDER_Y_FRAC * figH;
@@ -298,14 +307,14 @@ export function SkyCanvas({
           w === "rain"
             ? Math.round(220 * m) + 40
             : w === "thunder"
-              ? Math.round(300 * m) + 60
-              : w === "snow"
-                ? Math.round(140 * m) + 30
-                : w === "fog"
-                  ? 9
-                  : w === "heat"
-                    ? 26
-                    : 0,
+            ? Math.round(300 * m) + 60
+            : w === "snow"
+            ? Math.round(140 * m) + 30
+            : w === "fog"
+            ? 9
+            : w === "heat"
+            ? 26
+            : 0
         );
       }
       ctx.clearRect(0, 0, W, H);
@@ -330,7 +339,7 @@ export function SkyCanvas({
             dioramaFrame.top,
             dioramaFrame.right - dioramaFrame.left,
             dioramaFrame.bottom - dioramaFrame.top,
-            FRAME_RADIUS,
+            FRAME_RADIUS
           );
           fctx.clip();
           fctx.strokeStyle = outerColor;
@@ -442,7 +451,7 @@ export function SkyCanvas({
             dioramaFrame.top,
             dioramaFrame.right - dioramaFrame.left,
             dioramaFrame.bottom - dioramaFrame.top,
-            FRAME_RADIUS,
+            FRAME_RADIUS
           );
           fctx.clip();
         }
@@ -530,7 +539,7 @@ export function SkyCanvas({
             0,
             pt.x + wob,
             y,
-            70,
+            70
           );
           g.addColorStop(0, "rgba(255,170,80,.10)");
           g.addColorStop(1, "rgba(255,170,80,0)");
