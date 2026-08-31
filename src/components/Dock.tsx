@@ -27,6 +27,8 @@ interface SettingsProps {
   phase: Phase;
   weather: Weather;
   temp: number | null;
+  place: string | null;
+  live: boolean;
   phaseOverride: Phase | null;
   weatherOverride: Weather | null;
   panelOpen: boolean;
@@ -209,6 +211,8 @@ function SettingsFields({
   phase,
   weather,
   temp,
+  place,
+  live,
   phaseOverride,
   weatherOverride,
   setPhaseOverride,
@@ -216,13 +220,19 @@ function SettingsFields({
 }: Omit<SettingsProps, "panelOpen" | "setPanelOpen">) {
   const statusLine =
     PHASES[phase].label + " · " + weather + (temp != null ? ` · ${temp}°C` : "");
+  const hasOverride = phaseOverride != null || weatherOverride != null;
+  const sourceLine = hasOverride
+    ? "manual override active"
+    : live
+      ? `live · ${place ?? "resolving…"}`
+      : "resolving…";
 
   return (
     <>
       <div style={{ padding: "8px 8px 4px" }}>
         <p
           style={{
-            margin: "0 0 10px",
+            margin: "0 0 2px",
             fontFamily: "'JetBrains Mono',monospace",
             fontSize: 10,
             letterSpacing: ".1em",
@@ -230,6 +240,17 @@ function SettingsFields({
           }}
         >
           {statusLine}
+        </p>
+        <p
+          style={{
+            margin: "0 0 10px",
+            fontFamily: "'JetBrains Mono',monospace",
+            fontSize: 10,
+            letterSpacing: ".1em",
+            color: hasOverride ? "var(--accent)" : "var(--fg2)",
+          }}
+        >
+          {sourceLine}
         </p>
 
         <p

@@ -134,6 +134,8 @@ function App() {
         phase={portfolio.phase}
         weather={portfolio.weather}
         temp={portfolio.temp}
+        place={portfolio.place}
+        live={portfolio.live}
         phaseOverride={portfolio.phaseOverride}
         weatherOverride={portfolio.weatherOverride}
         panelOpen={portfolio.panelOpen}

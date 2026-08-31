@@ -97,11 +97,16 @@ export function usePortfolio() {
             "your area"
           ),
         fallback,
-        { timeout: 6000 }
+        // enableHighAccuracy asks the device for a GPS-grade fix instead of
+        // the coarse Wi-Fi/IP-based positioning browsers default to, which
+        // can be off by several km on desktop — easily enough to miss
+        // localized weather (e.g. rain) that the coarse fix's location
+        // doesn't have. A longer timeout gives that fix time to land before
+        // falling back.
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     } else fallback();
   }, []);
-
   const motion = 0.7;
 
   const phase = useMemo(
