@@ -18,6 +18,8 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@prerenderer/renderer-puppeteer": "^1.2.4",
+    "@prerenderer/rollup-plugin": "^0.3.12",
     "@types/matter-js": "^0.20.2",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.17",
