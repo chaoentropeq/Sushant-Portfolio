@@ -5,7 +5,7 @@ weather — the color palette, sky, and ambient effects on the home page
 shift between morning/afternoon/evening/night and clear/cloudy/rain/snow/fog/heat,
 using live Open‑Meteo data with manual overrides available.
 
-**Live site:** https://chaoentropeq.github.io/Sushant-Portfolio/
+**Live site:** https://dev.sushant.fyi/
 
 ## Stack
 
